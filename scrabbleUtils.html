@@ -1,0 +1,149 @@
+<html>
+<head>
+    <title>Homework-01-Scrabble</title>
+</head>
+<script>
+
+function canConstructWord(availableTiles, word){
+    let wordBool = true;
+    let tileHolder = Object.assign({}, availableTiles);
+    for (let x = 0; x < word.length; ++x){
+      	let wordHolder = word[x];
+        if (tileHolder.hasOwnProperty(wordHolder) && tileHolder[wordHolder] != 0){
+            tileHolder[wordHolder] = tileHolder[wordHolder] - 1;
+            continue;
+        }
+        else if (tileHolder.hasOwnProperty('*') && tileHolder['*'] != 0){
+            tileHolder['*'] = tileHolder['*'] - 1;
+        }
+        else{
+            wordBool = false;
+            break;
+        }
+    }
+    return wordBool;
+}
+
+console.log(canConstructWord({c: 1, '*': 20}, "catsarecaring"));
+
+function baseScore(word){
+    let count = 0;
+    for (let i = 0; i < word.length; ++i){
+        if (word[i] === 'e' || word[i] === 'a' || word[i] === 'i' || word[i] === 'o' || word[i] === 'n' || 
+            word[i] === 'r' || word[i] === 't' || word[i] === 'l' || word[i] === 's' || word[i] === 'u'){
+                count = count + 1;
+        } 
+        else if (word[i] === 'd' || word[i] === 'g'){
+            count = count + 2;
+        }
+        else if (word[i] === 'b' || word[i] === 'c' || word[i] === 'm' || word[i] === 'p'){
+            count = count + 3;
+        }
+        else if (word[i] === 'f' || word[i] === 'h' || word[i] === 'v' || word[i] === 'w' || word[i] === 'y'){
+            count = count + 4;
+        }
+        else if (word[i] === 'k'){
+            count = count + 5;
+        }
+        else if (word[i] === 'j' || word[i] === 'x'){
+            count = count + 8;
+        }
+        else if (word[i] === '*'){
+            continue;
+        }
+        else if (word[i] === 'q' || word[i] === 'z'){
+            count = count + 10;
+        }
+    }
+    return count;
+}
+
+console.log(baseScore("cat"));
+
+console.assert(canConstructWord({ a: 1, c: 2, t: 1 }, "cat"), "canConstructWord: Unique alphas");
+console.assert(canConstructWord({ a: 2, c: 2, b: 2 }, "aabbcc"), "canConstructWord: Non-unique alphas");
+console.assert(canConstructWord({ '*': 1, c: 2, t: 1 }, "cat"), "canConstructWord: Wildcards");
+console.assert(canConstructWord({ '*': 3, c: 2, t: 1 }, "coats"), "canConstructWord: Multiple wildcards");
+console.assert(canConstructWord({ '*': 1, c: 2, t: 1 }, ""), "canConstructWord: No word");
+
+console.assert(!canConstructWord({}, "cat"), "canConstructWord: No tiles");
+console.assert(!canConstructWord({ '*': 1, c: 2, t: 1 }, "cabt"), "canConstructWord: Insufficient tiles, wildcard");
+console.assert(!canConstructWord({ a: 1, c: 2 }, "cat"), "canConstructWord: Insufficient tiles, unique alphas");
+console.assert(!canConstructWord({ a: 3 }, "aaaa"), "canConstructWord: Insufficient tiles, non-unique alphas");
+// baseScore tests
+console.assert(baseScore('cat') === 5, "baseScore: Unique alphas");
+console.assert(baseScore('caat') === 6, "baseScore: Non-unique alphas");
+console.assert(baseScore('c*t') === 4, "baseScore: Wildcard");
+console.assert(baseScore('c***t') === 4, "baseScore: Multiple wildcard");
+
+console.assert(!baseScore(''), "baseScore: No word");
+
+console.assert(canConstructWord({ c: 1, a: 1, t: 1 }, 'cat'), 'cat with letters');
+console.assert(canConstructWord({ c: 1, '*': 1, t: 1 }, 'cat'), 'cat with 2 letters and 1 wildcard');
+console.assert(canConstructWord({ c: 1, '*': 2, t: 0 }, 'cat'), 'cat with 1 letter and 2 wildcards');
+
+console.assert(baseScore('cat') === 5, 'cat score with all letters');
+console.assert(baseScore('c*t') === 4, 'cat score with one wildcard in place of "a"');
+console.assert(baseScore('***') === 0, 'all wildcards');
+
+function testCanConstructWord() {
+  // Decrements tiles
+  console.assert(
+    !canConstructWord({ c: 1, a: 1, t: 2 }, "cattt"),
+    "Constructed 'cattt' despite 1 missing 't'"
+  );
+
+  // Decrements Wildcard
+  console.assert(
+    !canConstructWord({ c: 0, a: 0, "*": 2 }, "cat"),
+    "Constructed 'cat' despite 1 missing wildcard"
+  );
+
+  // Handles undefined object keys
+  console.assert(
+    !canConstructWord({ c: 1 }, "cat"),
+    "Constructed 'cat' despite missing 'a' and 't'"
+  );
+
+  // Check that input object is not mutated
+  console.assert(
+    (() => {
+      const tilesCompare = { a: 1, b: 1 };
+      const tiles = { ...tilesCompare };
+
+      canConstructWord(tiles, "ab");
+
+      return Object.keys(tiles).reduce(
+        (accum, curr) => accum && tiles[curr] === tilesCompare[curr],
+        true
+      );
+    })(),
+    "Tiles object was mutated directly"
+  );
+}
+
+function testBaseScore() {
+  // Score word with wilcard in place of letter
+  console.assert(
+    baseScore("c*t") === 4,
+    `Scored 'c*t' as ${baseScore("c*t")} instead of 4`
+  );
+
+  // Score empty string
+  console.assert(
+    baseScore("") === 0,
+    `Scored "" as ${baseScore("")} instead of 0`
+  );
+
+  // Score only wildcards
+  console.assert(
+    baseScore("*****") === 0,
+    `Scored "*****" as ${baseScore("*****")} instead of 0`
+  );
+}
+
+testCanConstructWord();
+testBaseScore();
+
+</script>
+</html>
